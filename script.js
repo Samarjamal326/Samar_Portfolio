@@ -76,6 +76,147 @@ document.addEventListener('DOMContentLoaded', () => {
   highlightNavOnScroll(); // Trigger once on initial load
 
   // --------------------------------------------------------------------------
+  // 4. Contact Form Handler (Dynamic Feature)
+  // Validates inputs, sends via asynchronous fetch to Formspree, and
+  // displays clear inline success or error messages.
+  // --------------------------------------------------------------------------
+  const contactForm = document.getElementById('contactForm');
+  const formStatus = document.getElementById('formStatus');
+  const submitBtn = document.getElementById('formSubmitBtn');
+
+  if (contactForm && formStatus && submitBtn) {
+    const nameInput = document.getElementById('formName');
+    const emailInput = document.getElementById('formEmail');
+    const messageInput = document.getElementById('formMessage');
+
+    const nameError = document.getElementById('nameError');
+    const emailError = document.getElementById('emailError');
+    const messageError = document.getElementById('messageError');
+
+    // Email format validation helper (RFC compliant basic regex)
+    const isValidEmail = (email) => {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+    };
+
+    // Helper to clear error state from an input
+    const clearError = (input, errorElement) => {
+      input.classList.remove('input-error');
+      if (errorElement) errorElement.textContent = '';
+    };
+
+    // Clear errors when the user begins typing
+    nameInput?.addEventListener('input', () => clearError(nameInput, nameError));
+    emailInput?.addEventListener('input', () => clearError(emailInput, emailError));
+    messageInput?.addEventListener('input', () => clearError(messageInput, messageError));
+
+    contactForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      // Reset alert status banner
+      formStatus.hidden = true;
+      formStatus.className = 'form-status-alert';
+      formStatus.textContent = '';
+
+      let hasErrors = false;
+
+      // 1. Validate Name
+      if (!nameInput.value.trim()) {
+        nameInput.classList.add('input-error');
+        nameError.textContent = 'Please enter your name.';
+        hasErrors = true;
+      } else {
+        clearError(nameInput, nameError);
+      }
+
+      // 2. Validate Email
+      if (!emailInput.value.trim()) {
+        emailInput.classList.add('input-error');
+        emailError.textContent = 'Please enter your email address.';
+        hasErrors = true;
+      } else if (!isValidEmail(emailInput.value)) {
+        emailInput.classList.add('input-error');
+        emailError.textContent = 'Please enter a valid email address (e.g. name@domain.com).';
+        hasErrors = true;
+      } else {
+        clearError(emailInput, emailError);
+      }
+
+      // 3. Validate Message
+      if (!messageInput.value.trim()) {
+        messageInput.classList.add('input-error');
+        messageError.textContent = 'Please enter your message.';
+        hasErrors = true;
+      } else {
+        clearError(messageInput, messageError);
+      }
+
+      // If validation fails, focus the first invalid input and stop
+      if (hasErrors) {
+        if (nameInput.classList.contains('input-error')) {
+          nameInput.focus();
+        } else if (emailInput.classList.contains('input-error')) {
+          emailInput.focus();
+        } else if (messageInput.classList.contains('input-error')) {
+          messageInput.focus();
+        }
+        return;
+      }
+
+      // 4. Submit form payload via Fetch API
+      const formData = new FormData(contactForm);
+      const originalBtnHtml = submitBtn.innerHTML;
+
+      // Update button to sending state
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `
+        <span class="btn-text">Sending...</span>
+        <svg class="btn-icon-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="12"></circle>
+        </svg>
+      `;
+
+      try {
+        const response = await fetch(contactForm.action, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          // Success State
+          formStatus.hidden = false;
+          formStatus.className = 'form-status-alert success';
+          formStatus.innerHTML = `✓ Thank you, ${nameInput.value.trim()}! Your message has been sent successfully. I will get back to you shortly.`;
+          contactForm.reset();
+        } else {
+          // Service Error Response
+          const data = await response.json().catch(() => null);
+          formStatus.hidden = false;
+          formStatus.className = 'form-status-alert error';
+
+          if (contactForm.action.includes('YOUR_FORMSPREE_FORM_ID')) {
+            formStatus.innerHTML = `⚠️ Form endpoint placeholder detected. Please replace <code>YOUR_FORMSPREE_FORM_ID</code> in <code>index.html</code> with your Formspree form ID to receive emails.`;
+          } else if (data && data.errors && data.errors.length > 0) {
+            formStatus.textContent = data.errors.map(err => err.message).join(', ');
+          } else {
+            formStatus.textContent = 'Oops! There was a problem submitting your message. Please try again or reach out via email.';
+          }
+        }
+      } catch (error) {
+        // Network / Fetch error
+        formStatus.hidden = false;
+        formStatus.className = 'form-status-alert error';
+        formStatus.textContent = 'Network error: Unable to connect to the form service. Please check your connection or contact me directly.';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnHtml;
+      }
+    });
+  }
+
+  // --------------------------------------------------------------------------
   // Console Greeting
   // --------------------------------------------------------------------------
   console.log(

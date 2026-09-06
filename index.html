@@ -410,6 +410,90 @@
               <span class="channel-arrow">&rarr;</span>
             </a>
           </div>
+
+          <!-- =================================================================
+               CONTACT FORM (Dynamic Feature)
+               Connected to Formspree for serverless message delivery.
+               REPLACE 'YOUR_FORMSPREE_FORM_ID' with your actual Formspree form ID.
+               ================================================================= -->
+          <div class="contact-form-wrapper" id="contactFormWrapper">
+            <div class="contact-form-header">
+              <h3 class="contact-form-title">Send a Message</h3>
+              <p class="contact-form-subtitle">
+                Have a question, collaboration inquiry, or feedback? Drop a message below and it will be delivered directly to my inbox.
+              </p>
+            </div>
+
+            <!-- Formspree Endpoint: https://formspree.io/f/YOUR_FORMSPREE_FORM_ID -->
+            <form id="contactForm" action="https://formspree.io/f/YOUR_FORMSPREE_FORM_ID" method="POST" novalidate class="contact-form">
+              <!-- Spam protection honeypot (hidden from real users) -->
+              <input type="text" name="_gotcha" class="form-honeypot" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
+              <div class="form-grid">
+                <!-- Name Field -->
+                <div class="form-group">
+                  <label for="formName" class="form-label">
+                    Your Name <span class="required-asterisk" aria-hidden="true">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="formName"
+                    name="name"
+                    class="form-input"
+                    placeholder="e.g. Alex Smith"
+                    required
+                    autocomplete="name"
+                  />
+                  <span class="field-error-msg" id="nameError" aria-live="polite"></span>
+                </div>
+
+                <!-- Email Field -->
+                <div class="form-group">
+                  <label for="formEmail" class="form-label">
+                    Email Address <span class="required-asterisk" aria-hidden="true">*</span>
+                  </label>
+                  <input
+                    type="email"
+                    id="formEmail"
+                    name="email"
+                    class="form-input"
+                    placeholder="e.g. alex@example.com"
+                    required
+                    autocomplete="email"
+                  />
+                  <span class="field-error-msg" id="emailError" aria-live="polite"></span>
+                </div>
+              </div>
+
+              <!-- Message Field -->
+              <div class="form-group">
+                <label for="formMessage" class="form-label">
+                  Message <span class="required-asterisk" aria-hidden="true">*</span>
+                </label>
+                <textarea
+                  id="formMessage"
+                  name="message"
+                  class="form-textarea"
+                  rows="5"
+                  placeholder="Type your message here..."
+                  required
+                ></textarea>
+                <span class="field-error-msg" id="messageError" aria-live="polite"></span>
+              </div>
+
+              <!-- Submission Status Alert (Success / Error banner) -->
+              <div id="formStatus" class="form-status-alert" role="alert" aria-live="polite" hidden></div>
+
+              <!-- Submit Button -->
+              <button type="submit" id="formSubmitBtn" class="btn btn-primary form-submit-btn">
+                <span class="btn-text">Send Message</span>
+                <svg class="btn-icon-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <line x1="22" y1="2" x2="11" y2="13"></line>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                </svg>
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     </section>
